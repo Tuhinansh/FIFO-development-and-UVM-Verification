@@ -32,47 +32,5 @@ Data integrity (order maintained)
 Coverage and scoreboard checks
 
 
-                          ┌───────────────────┐
-                          │   test.sv         │
-                          │ Starts UVM test   │
-                          └─────────┬─────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │     env.sv          │
-                         │Builds all UVM comps │
-                         └───────┬─────────────┘
-                                 │
-     ┌───────────────────────────┼────────────────────────────┐
-     ▼                           ▼                            ▼
-┌───────────┐           ┌────────────────┐          ┌─────────────────┐
-│ sequencer │           │    driver      │          │    monitor      │
-│ Sends     │──────────▶│Drives FIFO DUT │──writes──│Observes signals │
-│ seq_items │           │ via interface  │          │Creates analysis │
-└─────┬─────┘           └────────────────┘          └─────────┬───────┘
-      │                                                       │
-      │                                                       ▼
-      │                                          ┌─────────────────────┐
-      │                                          │   scoreboard        │
-      │                                          │Checks DUT vs model  │
-      │                                          └─────────┬───────────┘
-      │                                                    │
-      │                                                    ▼
-      │                                          ┌─────────────────────┐
-      │                                          │      coverage        │
-      │                                          │Tracks scenarios      │
-      │                                          └─────────────────────┘
-      │
-      ▼
-┌──────────────┐
-│ sequence.sv  │
-│ generates    │
-│ read/write   │
-│ patterns     │
-└──────────────┘
+<img width="494" height="812" alt="image" src="https://github.com/user-attachments/assets/6362060a-73b3-48e8-983b-0f7ddbfcd260" />
 
-                     ┌────────────────────────┐
-                     │ fifo_assertions.sv     │
-                     │ (no write when full,   │
-                     │  no read when empty)   │
-                     └────────────────────────┘
