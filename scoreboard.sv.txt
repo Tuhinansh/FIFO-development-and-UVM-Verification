@@ -1,0 +1,27 @@
+class fifo_scoreboard extends uvm_component;
+
+    `uvm_component_utils(fifo_scoreboard)
+
+    uvm_analysis_imp #(fifo_item, fifo_scoreboard) imp;
+    bit [7:0] q[$];
+
+    function new(string name, uvm_component parent);
+        super.new(name,parent);
+        imp = new("imp", this);
+    endfunction
+
+    function void write(fifo_item t);
+        if (t.wr_en)
+            q.push_back(t.data);
+
+        if (t.rd_en && q.size() > 0) begin
+            bit [7:0] exp = q.pop_front();
+            `uvm_info("SCOREBOARD", $sformatf("Expected = %0d", exp), UVM_MEDIUM);
+        end
+    endfunction
+
+endclass
+
+//---------------------------------------------
+//Made By Tuhinansh Sharma
+//---------------------------------------------

@@ -1,0 +1,24 @@
+class fifo_coverage extends uvm_subscriber #(fifo_item);
+
+    `uvm_component_utils(fifo_coverage)
+
+    fifo_item tr;
+
+    covergroup cg;
+        wr_cp : coverpoint tr.wr_en;
+        rd_cp : coverpoint tr.rd_en;
+        data_cp : coverpoint tr.data;
+        wr_rd_cross : cross wr_cp, rd_cp;
+    endgroup
+
+    function new(string name, uvm_component parent);
+        super.new(name,parent);
+        cg = new();
+    endfunction
+
+    function void write(fifo_item t);
+        tr = t;
+        cg.sample();
+    endfunction
+
+endclass

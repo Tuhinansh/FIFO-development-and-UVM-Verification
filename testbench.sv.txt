@@ -1,0 +1,110 @@
+//---------------------------------------------
+//Made By Tuhinansh Sharma
+//---------------------------------------------
+
+`timescale 1ns/1ns
+
+// Include UVM
+`include "uvm_macros.svh"
+import uvm_pkg::*;
+
+// Include our entire project package
+`include "fifo_pkg.sv"
+import fifo_pkg::*;
+
+// Include assertions
+`include "fifo_assertions.sv"
+
+// ------------------------------------------------------
+// FIFO DUT interface
+// ------------------------------------------------------
+interface fifo_if(input logic clk);
+
+    logic rst;
+    logic wr_en;
+    logic rd_en;
+    logic [7:0] wdata;
+    logic [7:0] rdata;
+    logic full;
+    logic empty;
+
+    modport drv_mp(
+        input  clk, full, empty, rdata,
+        output rst, wr_en, rd_en, wdata
+    );
+
+    modport mon_mp(
+        input clk, rst, wr_en, rd_en, wdata, rdata, full, empty
+    );
+endinterface
+
+
+//======================================================
+// TOP TB MODULE
+//======================================================
+module tb;
+
+    // --------------------------
+    // Clock
+    // --------------------------
+    logic clk = 0;
+    always #5 clk = ~clk;
+
+    // --------------------------
+    // Instantiate Interface
+    // --------------------------
+    fifo_if vif(clk);
+
+    // --------------------------
+    // DUT Instantiation
+    // --------------------------
+    fifo dut (
+        .clk   (clk),
+        .rst   (vif.rst),
+        .wr_en (vif.wr_en),
+        .rd_en (vif.rd_en),
+        .wdata (vif.wdata),
+        .rdata (vif.rdata),
+        .full  (vif.full),
+        .empty (vif.empty)
+    );
+
+    // --------------------------
+    // Assertions Interface Bind
+    // --------------------------
+    fifo_assert_if assert_if(
+        .clk(clk),
+        .rst(vif.rst),
+        .wr_en(vif.wr_en),
+        .rd_en(vif.rd_en),
+        .full(vif.full),
+        .empty(vif.empty)
+    );
+
+    // --------------------------
+    // VCD Dump
+    // --------------------------
+  	initial begin
+    $dumpfile("waves.vcd");    // forces root folder
+    $dumpvars(0, tb);
+	end
+
+
+    // --------------------------
+    // Reset Sequence
+    // --------------------------
+    initial begin
+        vif.rst = 1;
+        #20;
+        vif.rst = 0;
+    end
+
+    // --------------------------
+    // UVM CONFIG: Pass the interface
+    // --------------------------
+    initial begin
+        uvm_config_db#(virtual fifo_if)::set(null, "*", "vif", vif);
+        run_test("fifo_test");
+    end
+
+endmodule

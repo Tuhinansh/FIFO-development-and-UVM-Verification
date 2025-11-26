@@ -1,0 +1,20 @@
+interface fifo_assert_if (
+    input logic clk,
+    input logic rst,
+    input logic wr_en,
+    input logic rd_en,
+    input logic full,
+    input logic empty
+);
+
+    a_no_write_when_full: assert property
+    (@(posedge clk) disable iff(rst)
+        !(wr_en && full)
+    ) else $warning("WRITE when FULL");
+
+    a_no_read_when_empty: assert property
+    (@(posedge clk) disable iff(rst)
+        !(rd_en && empty)
+    ) else $warning("READ when EMPTY");
+
+endinterface

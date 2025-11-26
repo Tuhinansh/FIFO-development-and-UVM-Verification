@@ -1,0 +1,36 @@
+class fifo_monitor extends uvm_monitor;
+
+    `uvm_component_utils(fifo_monitor)
+
+    virtual fifo_if vif;
+
+    uvm_analysis_port #(fifo_item) mon_ap;
+    uvm_analysis_port #(fifo_item) cov_ap;
+
+    function new(string name, uvm_component parent);
+        super.new(name,parent);
+        mon_ap = new("mon_ap", this);
+        cov_ap = new("cov_ap", this);
+    endfunction
+
+    function void build_phase(uvm_phase phase);
+        uvm_config_db#(virtual fifo_if)::get(this,"","vif",vif);
+    endfunction
+
+    task run_phase(uvm_phase phase);
+        fifo_item tr;
+
+        forever begin
+            @(posedge vif.clk);
+
+            tr = fifo_item::type_id::create("tr");
+            tr.wr_en = vif.wr_en;
+            tr.rd_en = vif.rd_en;
+            tr.data  = vif.wdata;
+
+            mon_ap.write(tr);
+            cov_ap.write(tr);
+        end
+    endtask
+
+endclass
